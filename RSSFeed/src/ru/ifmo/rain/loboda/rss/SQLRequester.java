@@ -54,7 +54,7 @@ public class SQLRequester {
         if(!isOpened){
             throw new SQLiteException("");
         }
-        return database.query(DATABASE_TABLE_FEEDS, null, null, null, null, null, KEY_ID_FEED + " desc", null);
+        return database.query(DATABASE_TABLE_FEEDS, null, null, null, null, null, KEY_ID_FEED + " asc", null);
     }
 
     public void deleteArticles(int feedId) throws SQLiteException {

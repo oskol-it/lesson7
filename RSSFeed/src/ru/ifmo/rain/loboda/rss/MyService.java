@@ -29,14 +29,23 @@ public class MyService extends IntentService {
             while(cursor.moveToNext()){
                 String url = cursor.getString(cursor.getColumnIndexOrThrow(SQLRequester.KEY_URL_FEED));
                 int feedId = cursor.getInt(cursor.getColumnIndexOrThrow(SQLRequester.KEY_ID_FEED));
-                List<RSSRecord> records = parser.parse((new URL(url).openStream()));
-                helper.deleteArticles(feedId);
-                for(int i = 0; i < records.size(); ++i){
-                    helper.insertArticle(feedId, records.get(i).getAnnotation(), records.get(i).getDescription());
-                }
-                Intent broadcastIntent = new Intent("ru.ifmo.rain.loboda.ACTION.UPDATE");
-                broadcastIntent.putExtra("feedId", feedId);
-                sendBroadcast(broadcastIntent);
+                List<RSSRecord> records = null;
+                try {
+                    records = parser.parse((new URL(url).openStream()));
+                    helper.deleteArticles(feedId);
+                    for(int i = 0; i < records.size(); ++i){
+                        helper.insertArticle(feedId, records.get(i).getAnnotation(), records.get(i).getDescription());
+                    }
+                    Intent broadcastIntent = new Intent("ru.ifmo.rain.loboda.ACTION.UPDATE");
+                    broadcastIntent.putExtra("feedId", feedId);
+                    sendBroadcast(broadcastIntent);
+                } catch (ParserConfigurationException e) {
+                e.printStackTrace();
+            } catch (SAXException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             }
             if(toastFlag != null && toastFlag.equals("true")){
                 Intent broadcastIntent = new Intent("ru.ifmo.rain.loboda.ACTION.UPDATE");
@@ -45,14 +54,6 @@ public class MyService extends IntentService {
             }
             cursor.close();
         } catch (SQLiteException e) {
-            e.printStackTrace();
-        } catch (ParserConfigurationException e) {
-            e.printStackTrace();
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        } catch (SAXException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
             e.printStackTrace();
         }
     }
